@@ -1,0 +1,4 @@
+#Pyinstaller
+dist/
+build/
+*.spec
