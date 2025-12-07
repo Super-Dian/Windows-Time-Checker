@@ -1,6 +1,6 @@
-Use_excternal_path: 'No' #wheather to use external path for saving config file
+Use_excternal_path: 'No' #whether to use external path for saving config file
 Path: '' #path for external config file
 check_interval: 1000 #in seconds
-lauch_when_device_start: 'No' #wheather to launch the program when device starts
+lauch_when_device_start: 'No' #whether to launch the program when device starts
 max_check_times: 3 #max times to check if there is no internet connection
-use_notification: 'Yes' #wheather to use notification for informing user
+use_notification: 'Yes' #whether to use notification for informing user
