@@ -6,7 +6,7 @@ import subprocess
 import sys
 import yaml
 import tempfile
-import datetime
+from datetime import datetime, timezone
 import xml.etree.ElementTree as ET
 
 def get_base_dir():
@@ -79,7 +79,7 @@ def _build_task_xml(task_name: str, command: str, arguments: str = "") -> bytes:
 
     task = ET.Element(T("Task"), {"version": "1.2"})
     reg = ET.SubElement(task, T("RegistrationInfo"))
-    ET.SubElement(reg, T("Date")).text = datetime.datetime.utcnow().replace(microsecond=0).isoformat()
+    ET.SubElement(reg, T("Date")).text = datetime.now(timezone.utc).replace(microsecond=0).isoformat()
     ET.SubElement(reg, T("Author")).text = os.environ.get("USERNAME", "Unknown")
 
     # 触发器：仅使用 LogonTrigger（用户登录时触发），删除其他触发器
@@ -97,7 +97,8 @@ def _build_task_xml(task_name: str, command: str, arguments: str = "") -> bytes:
     userid = f"{domain}\\{user}" if domain else user
     ET.SubElement(principal, T("UserId")).text = userid
     ET.SubElement(principal, T("LogonType")).text = "InteractiveToken"
-    ET.SubElement(principal, T("RunLevel")).text = "LeastPrivilege"
+    # 要求以最高权限运行
+    ET.SubElement(principal, T("RunLevel")).text = "HighestAvailable"
 
     # Settings: 允许在电池上运行（DisallowStartIfOnBatteries=false），并尽量保守设置
     settings = ET.SubElement(task, T("Settings"))
