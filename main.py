@@ -68,6 +68,23 @@ def schtask_exists(task_name="TimeChecker"):
     except Exception:
         return False
 
+def get_current_user_sid():
+    out = subprocess.check_output(
+        ["whoami", "/user"],
+        text=True,
+        creationflags=0x08000000  # 不弹窗口
+    )
+    # 输出示例：
+    # USER INFORMATION
+    # ----------------
+    # User Name        SID
+    # matebook\dian    S-1-5-21-...
+    for line in out.splitlines():
+        if "S-" in line:
+            return line.split()[-1]
+    raise RuntimeError("Failed to get SID")
+
+
 def _build_task_xml(task_name: str, command: str, arguments: str = "") -> bytes:
     """
     生成 Task XML（bytes，UTF-16 编码），UserId 使用当前用户，确保在电池上也能启动。
@@ -92,9 +109,12 @@ def _build_task_xml(task_name: str, command: str, arguments: str = "") -> bytes:
     # Principal 使用当前用户
     principals = ET.SubElement(task, T("Principals"))
     principal = ET.SubElement(principals, T("Principal"), {"id": "Author"})
+    '''
     domain = os.environ.get("USERDOMAIN", "")
     user = os.environ.get("USERNAME", "")
-    userid = f"{domain}\\{user}" if domain else user
+    userid = f"{domain}\\{user}" if domain else user'''
+    userid = get_current_user_sid()
+    print("Current User SID:", userid)
     ET.SubElement(principal, T("UserId")).text = userid
     ET.SubElement(principal, T("LogonType")).text = "InteractiveToken"
     # 要求以最高权限运行
